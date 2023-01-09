@@ -1,0 +1,6 @@
+#!/bin/bash
+
+ FILE="$1"
+ LINE="$2"
+
+ p4 annotate ‑cq "${FILE}" | sed "${LINE}q;d" | cut ‑f1 ‑d: | xargs p4 describe ‑s | sed ‑e '/Affected files/,$d'

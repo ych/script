@@ -1,0 +1,12 @@
+#!/bin/sh
+
+if [ "$#" -eq 1 ]; then
+    p4 changes -L | ~yuchunh/bin/rg -B20 $1 | grep ^Change | tac | awk 'BEGIN {prev = 0} $2 > prev+3 {print $2} {prev=$2}'
+elif [ "$#" -eq 2 ]; then
+    p4 changes -L -m $2 | ~yuchunh/bin/rg -B20 $1 | grep ^Change | tac | awk 'BEGIN {prev = 0} $2 > prev+3 {print $2} {prev=$2}'
+else
+    echo "Search keyword from p4 description" >&2
+    echo "Usage: $0 <keyword> [max serached changes(from highest number)]" >&2
+    echo "Example: $0 TOCTOU" >&2
+    echo "         $0 TOCTOU 1000000" >&2
+fi

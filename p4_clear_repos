@@ -1,0 +1,45 @@
+#!/bin/env python
+import os
+import sys
+import subprocess
+
+def get_p4config():
+    ori_pwd = os.getcwd();
+    output = subprocess.check_output("p4 clients -u yuchunh | grep ' {} '".format(ori_pwd), shell=True)
+    x = output.decode('ascii').strip().split()
+    print("{}".format(x[1]))
+    with open(".p4config", "w") as f:
+        f.write("P4PORT=p4p-vg01:1888\nP4CLIENT={}".format(x[1]))
+    return x[1]
+
+def p4revert(client):
+    output = subprocess.check_output("p4 -c {} revert -k //...".format(client), shell=True)
+    print("{}".format(output.decode('ascii')))
+
+def p4delete_shelve(client):
+    output = subprocess.check_output("p4 changes -c {} -s shelved | awk '{{print $2}}'".format(client), shell=True)
+    if output:
+        changelists = output.decode('ascii').strip().splitlines()
+        for changelist in changelists:
+            output = subprocess.check_output("p4 shelve -c {} -df".format(changelist), shell=True)
+            print("{}".format(output.decode('ascii')))
+
+def p4delete_pending(client):
+    output = subprocess.check_output("p4 changes -c {} -s pending | awk '{{print $2}}'".format(client), shell=True)
+    if output:
+        changelists = output.decode('ascii').strip().splitlines()
+        for changelist in changelists:
+            output = subprocess.check_output("p4 -c {} change -d {}".format(client, changelist), shell=True)
+            print("{}".format(output.decode('ascii')))
+
+def p4delete_client(client):
+    output = subprocess.check_output("p4 client -d {}".format(client), shell=True)
+    print("{}".format(output.decode('ascii')))
+
+if __name__ == "__main__":
+    #client = get_p4config()
+    client = sys.argv[1]
+    p4revert(client)
+    p4delete_shelve(client)
+    p4delete_pending(client)
+    p4delete_client(client)
