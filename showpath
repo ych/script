@@ -1,0 +1,2 @@
+#/bin/sh
+awk -v RS=: '{print}' <<<$PATH

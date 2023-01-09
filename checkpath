@@ -1,0 +1,2 @@
+#/bin/sh
+awk -v RS=: '{print}' <<<$PATH | grep -q -e "^$1$"
